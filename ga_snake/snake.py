@@ -1,6 +1,8 @@
 import logging
 
-from ga_snake.cygni import util
+from ga_snake import util
+from ga_snake.base_snake import BaseSnake
+from ga_snake.util import Direction
 
 log = logging.getLogger("snake")
 
@@ -15,40 +17,30 @@ TILE_VALUES = {
 }
 
 
-class Snake(object):
-    def __init__(self):
+class Snake(BaseSnake):
+    def __init__(self, config):
+        super().__init__()
         self.name = "DumbestEver"
-        self.snake_id = None
-        self.directions = [util.Direction.DOWN, util.Direction.UP, util.Direction.LEFT, util.Direction.RIGHT]
+        self.config = config
+        self.result = None
 
-    def get_next_move(self, game_map):
-        return util.Direction.RIGHT
-
-    @staticmethod
-    def on_game_ended():
-        log.debug('The game has ended!')
+        log.info("Running job: %s", self.config)
 
     @staticmethod
-    def on_snake_dead(reason):
-        log.debug('Our snake died because %s', reason)
+    def get_next_move(game_map):
+        return Direction.RIGHT
 
-    @staticmethod
-    def on_game_starting():
-        log.debug('Game is starting!')
+    def on_game_result(self, player_ranks):
+        def add_config(config):
+            log.info("Adding config: %s", config)
+            configs.append(config)
 
-    def on_player_registered(self, snake_id):
-        log.debug('Player registered successfully')
-        self.snake_id = snake_id
+        # Generate some dummy configs
+        configs = []
+        if self.config < 20:
+            add_config(self.config + 2)
+            add_config(self.config + 4)
+            add_config(self.config * 10)
+            add_config((self.config + 1) * 10)
 
-    @staticmethod
-    def on_invalid_player_name():
-        log.fatal('Player name is invalid, try another!')
-
-    @staticmethod
-    def on_game_result(player_ranks):
-        log.info('Game result:')
-        for player in player_ranks:
-            is_alive = 'alive' if player['alive'] else 'dead'
-            log.info('%d. %d pts\t%s\t(%s)' %
-                     (player['rank'], player['points'], player['playerName'],
-                      is_alive))
+        self.result = configs
