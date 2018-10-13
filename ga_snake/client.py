@@ -13,6 +13,8 @@ loop = asyncio.get_event_loop()
 
 
 class SnakebotProtocol(WebSocketClientProtocol):
+    snake = None
+
     def __init__(self):
         super().__init__()
         self.__done = loop.create_future()
@@ -31,7 +33,7 @@ class SnakebotProtocol(WebSocketClientProtocol):
         }
 
     def onOpen(self):
-        log.info("connection is open")
+        # log.info("connection is open")
         self._send(messages.client_info())
         self._send(messages.player_registration(self.snake.name))
 
@@ -42,17 +44,17 @@ class SnakebotProtocol(WebSocketClientProtocol):
             return
 
         msg = json.loads(payload.decode())
-        log.debug("Message received: %s", msg)
+        # log.debug("Message received: %s", msg)
 
         self._route_message(msg)
 
     def onClose(self, was_clean, code, reason):
-        log.info("Socket is closed!")
+        # log.info("Socket is closed!")
         if reason:
             log.error(reason)
 
     def _send(self, msg):
-        log.debug("Sending message: %s", msg)
+        # log.debug("Sending message: %s", msg)
         self.sendMessage(json.dumps(msg).encode(), False)
 
     def _route_message(self, msg):
@@ -65,10 +67,10 @@ class SnakebotProtocol(WebSocketClientProtocol):
     def _game_ended(self, msg):
         self.snake.on_game_ended()
 
-        log.debug('Sending close message to websocket')
+        # log.debug('Sending close message to websocket')
         self.sendClose(code=self.CLOSE_STATUS_CODE_NORMAL)
 
-        log.info("WATCH AT: %s", self.watch_game_at)
+        # log.info("WATCH AT: %s", self.watch_game_at)
 
     def _tournament_ended(self, msg):
         raise RuntimeError('Tournaments not supported!')
@@ -100,8 +102,10 @@ class SnakebotProtocol(WebSocketClientProtocol):
         pass
 
     def _game_link(self, msg):
-        log.info('Watch game at: %s', msg['url'])
-        self.watch_game_at = msg["url"]
+        link = msg["url"]
+        # log.info('Watch game at: %s', link)
+        self.watch_game_at = link
+        self.snake.on_game_link(link)
 
     def _game_result(self, msg):
         self.snake.on_game_result(msg['playerRanks'])
@@ -134,6 +138,8 @@ def run_simulation(args):
     connection_coro = loop.create_connection(factory, host, port)
     transport, protocol = loop.run_until_complete(connection_coro)
     loop.run_until_complete(protocol.wait_connection_lost())
+
+    protocol.dropConnection(abort=True)
     transport.close()
 
     return snake.result

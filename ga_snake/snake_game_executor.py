@@ -5,7 +5,7 @@ from ga_snake.client import run_simulation
 from ga_snake.snake import Snake
 
 
-class Executor(object):
+class SnakeGameExecutor(object):
     def __init__(self, args):
         self.hpv = args.host, args.port, args.venue
         self.executor = ProcessPoolExecutor(max_workers=os.cpu_count())
@@ -19,7 +19,7 @@ class Executor(object):
 
     def run_batch(self, batch):
         results = []
-        params = [(*self.hpv, Snake(data)) for data in batch]
+        params = [(*self.hpv, Snake(x)) for x in batch]
         for result in self.executor.map(run_simulation, params):
             results.append(result)
         return results

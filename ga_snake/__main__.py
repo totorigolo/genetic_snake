@@ -3,7 +3,7 @@ import logging
 
 import colorlog
 
-from ga_snake.generig_training import GeneticTraining
+from ga_snake.genetic_training import GeneticTraining
 
 log_levels = {
     'debug': logging.DEBUG,
@@ -56,6 +56,84 @@ def parse_args():
         default=logging.INFO,
         choices=log_names,
         help='The log level for the client')
+
+    # Genetic algorithm parameters
+    parser.add_argument(
+        '--pop-size',
+        default=20,
+        type=int,
+        dest='population_size',
+        help='The number of individuals in the population.')
+    parser.add_argument(
+        '--layers',
+        default='[4, 5, 3]',
+        type=lambda s: list(map(int, s[1:-1].split(','))),
+        help='The layers of the Neural Network.')
+    parser.add_argument(
+        '-G',
+        '--max-gen',
+        default=100,
+        type=int,
+        dest='max_generation',
+        help='The maximum number of generations.')
+    parser.add_argument(
+        '-F',
+        '--target-fitness',
+        default=1000,
+        type=int,
+        dest='target_fitness',
+        help='The goal fitness. When attained, the learning stops.')
+    parser.add_argument(
+        '-Se',
+        '--selection-elitism',
+        default=True,
+        type=bool,
+        dest='selection_elitism',
+        help='Whether to always keep the best chromosome in the next '
+             'generation.')
+    parser.add_argument(
+        '-Sp',
+        '--selection-rank-prob',
+        default=0.25,
+        type=int,
+        dest='selection_rank_prob',
+        help='The probability used in rank selection.')
+    parser.add_argument(
+        '-Sk',
+        '--selection-frac-to-keep',
+        default=.8,
+        type=float,
+        dest='selection_keep_frac',
+        help='The fraction of the population to keep during evolution.')
+    parser.add_argument(
+        '-Mp',
+        '--mutation-prob',
+        default=.5,
+        type=float,
+        dest='mutation_prob',
+        help='The probability for a chromosome to mutate.')
+    parser.add_argument(
+        '-Mip',
+        '--mutation-inner-prob',
+        default=.05,
+        type=float,
+        dest='mutation_inner_prob',
+        help='If the chromosome mutates, this is the probability for a gene '
+             'to mutate.')
+    parser.add_argument(
+        '-Cp',
+        '--crossover-prob',
+        default=.7,
+        type=float,
+        dest='crossover_prob',
+        help='The probability for two parent chromosomes to crossover.')
+    parser.add_argument(
+        '-Cup',
+        '--crossover-uniform-prob',
+        default=.1,
+        type=float,
+        dest='crossover_uniform_prob',
+        help='The probability of a swap during an Uniform crossover.')
 
     return parser.parse_args()
 
