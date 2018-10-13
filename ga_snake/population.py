@@ -45,7 +45,7 @@ class Population(object):
             # Save the best chromosome ever seen
             if (self.best_chromosome is None
                     or self.best_chromosome.fitness < chromosome.fitness):
-                self.best_chromosome = chromosome.clone()
+                self.best_chromosome = chromosome.clone(chromosome.uid)
 
         # Compute each chromosome probability of being selected
         # based on its fitness. ([1] is fitness)

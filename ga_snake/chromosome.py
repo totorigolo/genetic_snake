@@ -28,6 +28,7 @@ class Chromosome(object):
 
     def clone(self, uid):
         clone = Chromosome(uid, self.layers[::])
+        clone.fitness = self.fitness
         for w, b in self.layers_wb:
             clone.layers_wb.append((np.copy(w), np.copy(b)))
         return clone
