@@ -20,6 +20,12 @@ class Training(object):
         raise NotImplementedError()
 
     def create_batch_from_results(self, results):
+        """ Create the next batch and return an estimate of the work
+        done in the previous batch.
+
+        :param results: the list of all the results for the previous batch
+        :return: (new_batch, estimate_work_previous_batch)
+        """
         raise NotImplementedError()
 
     def training_interrupted(self):
@@ -45,11 +51,15 @@ class Training(object):
                 self.run_counter += batch_size
 
                 results = executor.run_batch(batch)
-                batch = self.create_batch_from_results(results)
+                batch, qty_work_prev = self.create_batch_from_results(results)
 
                 batch_duration = time.time() - start_time
-                log.info('Batch: %d simulations in %g sec.',
-                         batch_size, batch_duration)
+                log.info('Batch: %d simulations (%g W) in %g sec:'
+                         '\n => %g sim/sec'
+                         '\n => %g W/sec.',
+                         batch_size, qty_work_prev, batch_duration,
+                         batch_size / batch_duration,
+                         qty_work_prev / batch_duration)
 
                 if self.execution_stopped:
                     self.training_interrupted()
@@ -68,5 +78,8 @@ class Training(object):
 
         if sig == signal.SIGINT:
             if not self.execution_stopped:
-                log.critical('SIGINT received, stopping.')
+                log.critical('SIGINT received, stopping...')
                 self.execution_stopped = True
+
+                # Unregister the signal handler
+                signal.signal(signal.SIGINT, signal.SIG_DFL)

@@ -105,19 +105,24 @@ class Map(object):
         return next((s for s in self.game_map['snakeInfos']
                      if s['id'] == snake_id), None)
 
-    def get_tile_at(self, coordinate):
+    def get_tile_at(self, coordinate, snake_name=None):
         position = translate_coordinate(coordinate, self.width)
 
         snake_at_pos = None
+        snake_at_pos_is_me = None
         for snake in self.game_map['snakeInfos']:
             if position in snake['positions']:
                 snake_at_pos = snake
+                snake_at_pos_is_me = snake['name'] == snake_name
 
         tile_type = TileType.EMPTY
-        if snake_at_pos:
+        if self.is_coordinate_out_of_bounds(coordinate):
+            tile_type = TileType.WALL
+        elif snake_at_pos:
             if position == snake_at_pos['positions'][0]:
                 tile_type = TileType.SNAKE_HEAD
-            elif position == snake_at_pos['positions'][-1]:
+            elif position == snake_at_pos['positions'][-1] \
+                    and not snake_at_pos_is_me:
                 tile_type = TileType.SNAKE_TAIL
             else:
                 tile_type = TileType.SNAKE_BODY
@@ -125,8 +130,6 @@ class Map(object):
             tile_type = TileType.OBSTACLE
         elif position in self.game_map['foodPositions']:
             tile_type = TileType.FOOD
-        elif self.is_coordinate_out_of_bounds(coordinate):
-            tile_type = TileType.WALL
 
         return Tile(tile_type, coordinate)
 

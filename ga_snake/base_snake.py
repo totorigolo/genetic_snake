@@ -1,5 +1,4 @@
 import logging
-
 from enum import Enum
 
 from ga_snake.util import Map, Direction
@@ -81,7 +80,7 @@ class BaseSnake(object):
 
     @staticmethod
     def on_snake_dead(reason):
-        log.debug('Our snake died because %s', reason)
+        log.debug('Game ended because: %s', reason)
 
     @staticmethod
     def on_invalid_player_name():

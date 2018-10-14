@@ -22,34 +22,39 @@ class GeneticTraining(Training):
     @overrides
     def create_batch_from_results(self, results):
         # Show the results
+        sum_fitness = 0
         results = sorted(results, key=lambda t: t[1])
         print('[Generation #%d] Results:' % self.population.generation)
         for uid, fitness, watch_link in results:
             print(' - #%3d fitness=%10g  => %s' % (uid, fitness, watch_link))
+            sum_fitness += fitness
 
         # Checks if the target fitness is reached
         best_uid, max_fitness, _ = max(results, key=lambda r: r[1])
         if max_fitness >= self.target_fitness:
             log.info('Target fitness reached.')
             self.show_best()
-            return []
+            return [], sum_fitness
 
         # Check that we don't exceed the maximum number of generations
         if self.population.generation >= self.max_generation:
             log.info('Maximum number of generations (%d) reached.',
                      self.max_generation)
             self.show_best()
-            return []
+            return [], sum_fitness
 
         # Evolve the population and go on with the learning
         self.population.evolve({
             uid: fitness for uid, fitness, _ in results
         })
-        return self.population.chromosomes
+        return self.population.chromosomes, sum_fitness
 
     def training_interrupted(self):
         pass
 
     def show_best(self):
-        print('Best chromosome:')
-        self.population.best_chromosome.show()
+        if self.population.best_chromosome is not None:
+            print('Best chromosome:')
+            self.population.best_chromosome.show()
+        else:
+            print('No best chromosome.')
