@@ -90,7 +90,8 @@ def parse_args():
         type=bool,
         dest='selection_elitism',
         help='Whether to always keep the best chromosome in the next '
-             'generation.')
+             'generation. For the moment, this will increase the population '
+             'size by 1.')
     parser.add_argument(
         '-Sp',
         '--selection-rank-prob',
@@ -118,8 +119,8 @@ def parse_args():
         default=.01,
         type=float,
         dest='mutation_inner_prob',
-        help='If the chromosome mutates, this is the probability for a gene'
-             ' to mutate.')
+        help='If the chromosome mutates, this is the probability for a gene '
+             'to mutate.')
     parser.add_argument(
         '-Cp',
         '--crossover-prob',
@@ -140,8 +141,8 @@ def parse_args():
         default=2,
         type=int,
         dest='num_new_random_per_generation',
-        help='The number Rpg of new random chromosomes to introduce at each'
-             ' generation. The total population will be pop-size + Rpg.')
+        help='The number Rpg of new random chromosomes to introduce at each '
+             'generation. The total population will be pop-size + Rpg.')
 
     return parser.parse_args()
 

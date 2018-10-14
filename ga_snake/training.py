@@ -30,6 +30,7 @@ class Training(object):
             log.warning("Can't train: the execution has been stopped.")
             return
 
+        # Set our own signal handler for SIGINT
         signal.signal(signal.SIGINT, self.__signal_handler)
         self.main_pid = os.getpid()
 
@@ -57,6 +58,9 @@ class Training(object):
         training_duration = time.time() - global_start_time
         log.info('Trained with %d simulations in %g sec.',
                  self.run_counter, training_duration)
+
+        # Unregister the signal handler
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     def __signal_handler(self, sig, frame):
         if os.getpid() != self.main_pid:
