@@ -47,5 +47,9 @@ class GeneticTraining(Training):
         })
         return self.population.chromosomes
 
+    def training_interrupted(self):
+        pass
+
     def show_best(self):
-        print('Best chromosome:\n', self.population.best_chromosome)
+        print('Best chromosome:')
+        self.population.best_chromosome.show()

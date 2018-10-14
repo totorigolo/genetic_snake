@@ -60,26 +60,26 @@ def parse_args():
     # Genetic algorithm parameters
     parser.add_argument(
         '--pop-size',
-        default=20,
+        default=40,
         type=int,
         dest='population_size',
         help='The number of individuals in the population.')
     parser.add_argument(
         '--layers',
-        default='[4, 5, 3]',
+        default='[8, 7, 3]',
         type=lambda s: list(map(int, s[1:-1].split(','))),
         help='The layers of the Neural Network.')
     parser.add_argument(
         '-G',
         '--max-gen',
-        default=100,
+        default=500,
         type=int,
         dest='max_generation',
         help='The maximum number of generations.')
     parser.add_argument(
         '-F',
         '--target-fitness',
-        default=1000,
+        default=10_000,
         type=int,
         dest='target_fitness',
         help='The goal fitness. When attained, the learning stops.')
@@ -94,32 +94,32 @@ def parse_args():
     parser.add_argument(
         '-Sp',
         '--selection-rank-prob',
-        default=0.25,
+        default=0.35,
         type=int,
         dest='selection_rank_prob',
         help='The probability used in rank selection.')
     parser.add_argument(
         '-Sk',
         '--selection-frac-to-keep',
-        default=.8,
+        default=.5,
         type=float,
         dest='selection_keep_frac',
         help='The fraction of the population to keep during evolution.')
     parser.add_argument(
         '-Mp',
         '--mutation-prob',
-        default=.5,
+        default=.4,
         type=float,
         dest='mutation_prob',
         help='The probability for a chromosome to mutate.')
     parser.add_argument(
         '-Mip',
         '--mutation-inner-prob',
-        default=.05,
+        default=.01,
         type=float,
         dest='mutation_inner_prob',
-        help='If the chromosome mutates, this is the probability for a gene '
-             'to mutate.')
+        help='If the chromosome mutates, this is the probability for a gene'
+             ' to mutate.')
     parser.add_argument(
         '-Cp',
         '--crossover-prob',
@@ -130,10 +130,18 @@ def parse_args():
     parser.add_argument(
         '-Cup',
         '--crossover-uniform-prob',
-        default=.1,
+        default=.03,
         type=float,
         dest='crossover_uniform_prob',
         help='The probability of a swap during an Uniform crossover.')
+    parser.add_argument(
+        '-Rpg',
+        '--num-new-random-per-generation',
+        default=2,
+        type=int,
+        dest='num_new_random_per_generation',
+        help='The number Rpg of new random chromosomes to introduce at each'
+             ' generation. The total population will be pop-size + Rpg.')
 
     return parser.parse_args()
 

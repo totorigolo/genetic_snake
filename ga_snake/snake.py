@@ -167,7 +167,7 @@ class Snake(BaseSnake):
         free_quarters = get_quarter_open_spaces(current_direction, head, gmap)
 
         return self._next_action_with_nn([
-            # *food_quarters,
+            *food_quarters,
             *free_quarters
         ])
 

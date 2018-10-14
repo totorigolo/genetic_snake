@@ -1,7 +1,11 @@
+import logging
+
 import numpy as np
 
 from ga_snake import id_generator
 from ga_snake.chromosome import new_random_chromosome, crossover
+
+log = logging.getLogger("population")
 
 
 class Population(object):
@@ -20,6 +24,7 @@ class Population(object):
 
         self.crossover_prob = args.crossover_prob
         self.crossover_uniform_prob = args.crossover_uniform_prob
+        self.num_new_random_per_generation = args.num_new_random_per_generation
 
         self.generation = 1
         self.chromosomes = [
@@ -30,12 +35,34 @@ class Population(object):
         self.best_chromosome = None
 
     def evolve(self, results):
+        log.info('Evolving generation %d => %d...',
+                 self.generation, self.generation + 1)
+
         self.generation += 1
         self._selection(results)
         self._mutate_all()
         self._do_crossovers()
 
+        # Add some totally random chromosomes
+        for _ in range(self.num_new_random_per_generation):
+            self.chromosomes.append(
+                new_random_chromosome(next(self.id_gen), self.layers))
+            self.chromosomes[-1].ancestors.append('R')  # Late random
+
+        # Log the best chromosome seen so far
+        if self.best_chromosome is not None:
+            print('Best so far:')
+            self.best_chromosome.show()
+
+            # If elitist, add the best seen to the population
+            if self.elitism:
+                self.chromosomes.append(self.best_chromosome.clone())
+
+        log.info('Generation %d is ready!', self.generation)
+
     def _selection(self, results):
+        log.debug('Performing selection...')
+
         # Update the chromosomes fitness with the results
         chromosome_dict = {}
         for chromosome in self.chromosomes:
@@ -44,11 +71,11 @@ class Population(object):
 
             # Save the best chromosome ever seen
             if (self.best_chromosome is None
-                    or self.best_chromosome.fitness < chromosome.fitness):
+                    or self.best_chromosome.fitness <= chromosome.fitness):
                 self.best_chromosome = chromosome.clone(chromosome.uid)
 
         # Compute each chromosome probability of being selected
-        # based on its fitness. ([1] is fitness)
+        # based on its fitness. (kv[1] is fitness)
         ranking = list(enumerate(map(
             lambda kv: kv[0],  # Discard the fitness
             sorted(results.items(), key=lambda kv: kv[1], reverse=True)
@@ -88,12 +115,16 @@ class Population(object):
         self.chromosomes = next_population
 
     def _mutate_all(self):
+        log.debug('Performing mutations...')
+
         for chromosome in self.chromosomes:
             r = np.random.rand()
             if r < self.mutation_prob:
                 chromosome.mutate(self.mutation_inner_prob)
 
     def _do_crossovers(self):
+        log.debug('Performing crossovers...')
+
         children = []
         population_size = len(self.chromosomes)
         while population_size < self.population_size:
@@ -103,12 +134,14 @@ class Population(object):
                 np.random.random_integers(0, len(self.chromosomes) - 1, 2))
 
             # Clone the parents to create the children
-            alice = father.clone(next(self.id_gen))
-            bob = mother.clone(next(self.id_gen))
+            alice = father.create_child(next(self.id_gen))
+            bob = mother.create_child(next(self.id_gen))
 
             # Cross-over (?)
             r = np.random.rand()
             if r < self.crossover_prob:
+                alice.ancestors.append('C{}'.format(mother.uid))
+                bob.ancestors.append('C{}'.format(father.uid))
                 crossover(alice, bob, self.crossover_uniform_prob)
 
             # Welcome!
