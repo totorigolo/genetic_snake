@@ -21,7 +21,7 @@ TILE_VALUES = {
     util.TileType.OBSTACLE: -1,
     util.TileType.SNAKE_HEAD: -5,
     util.TileType.SNAKE_BODY: -1,
-    util.TileType.SNAKE_TAIL: 5
+    util.TileType.SNAKE_TAIL: -5  # Because then it's protected 3 ticks.
 }
 
 
@@ -66,6 +66,9 @@ def compute_distances(head: int, name: str, elements: List[int], gmap: Map):
             continue
         visited.add(pos)
 
+        # if dist > 6:
+        #     break
+
         if pos in elements:
             elements[pos] = dist
             num_seen_elements += 1
@@ -73,12 +76,12 @@ def compute_distances(head: int, name: str, elements: List[int], gmap: Map):
                 break
 
         x, y = pos_to_coord(pos)
-        neightbors = filter(
+        neighbors = filter(
             lambda p: p not in visited and is_free(p),
             map(coord_to_pos, [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)])
         )
-        for neightbor in neightbors:
-            queue.append((neightbor, dist + 1))
+        for neighbor in neighbors:
+            queue.append((neighbor, dist + 1))
 
     # log.warning('food: %s', {
     #     pos_to_coord(pos): dist for pos, dist in elements.items()
@@ -227,6 +230,8 @@ class Snake(BaseSnake):
         self.result = None
         self.nn_created = False
 
+        self.duration_bfs = 0
+
     def _init_nn(self):
         """ Init the NN: create the TF flow from the chromosome.
         """
@@ -240,7 +245,7 @@ class Snake(BaseSnake):
             tf_b = tf.Variable(b, dtype=tf.float32)
             self.nn_layers_wb.append((tf_w, tf_b))
 
-            if i < len(self.chromosome.layers) - 1:  # Input ou hidden layers
+            if i < len(self.chromosome.layers) - 1:  # Input or hidden layers
                 nn_output = tf.nn.relu(tf.matmul(nn_output, tf_w) + tf_b)
             else:  # Output layer
                 nn_output = tf.nn.softmax(tf.matmul(nn_output, tf_w) + tf_b)
@@ -303,11 +308,15 @@ class Snake(BaseSnake):
         opponents_tails = list(o[-1] for o in opponents)
         # opponents = _flatten_list(opponents)
 
-        # Add the opponents' tails as food (yummy!)
-        food.extend(opponents_tails)
+        # # Add the opponents' tails as food (yummy!)
+        # food.extend(opponents_tails)
 
+        # start_bfs = time.time()
         dist_food_quarters = get_quarter_distances_to_food(
             current_direction, head, self.name, food, gmap)
+        # duration_bfs = time.time() - start_bfs
+        # log.critical('BFS took: %g ms', duration_bfs * 1000)
+
         # num_food_quarters = get_quarter_num_food(
         #     current_direction, head, food, gmap)
         free_quarters = get_quarter_open_spaces(
@@ -330,29 +339,37 @@ class Snake(BaseSnake):
         # fblr
         # print(self.get_current_direction())
         # print(inputs)
-        k = 0
-        # ff = inputs[0][0+k]
-        # fb = inputs[0][1+k]
-        # fl = inputs[0][2+k]
-        # fr = inputs[0][3+k]
-        # k += 4
-        wf = inputs[0][0 + k]
-        wb = inputs[0][1 + k]
-        wl = inputs[0][2 + k]
-        wr = inputs[0][3 + k]
-        k += 4
-        df = inputs[0][0 + k]
-        db = inputs[0][1 + k]
-        dl = inputs[0][2 + k]
-        dr = inputs[0][3 + k]
-
-        front = (1 - df) * .3 + wf * 1. + .0001
-        left = (1 - dl) * .3 + wl * 1.
-        right = (1 - dr) * .3 + wr * 1.
-
-        output[0][0] = left
-        output[0][1] = front
-        output[0][2] = right
+        # k = 0
+        # # ff = inputs[0][0+k]
+        # # fb = inputs[0][1+k]
+        # # fl = inputs[0][2+k]
+        # # fr = inputs[0][3+k]
+        # # k += 4
+        # wf = inputs[0][0 + k]
+        # wb = inputs[0][1 + k]
+        # wl = inputs[0][2 + k]
+        # wr = inputs[0][3 + k]
+        # # k += 4
+        # # df = inputs[0][0 + k]
+        # # db = inputs[0][1 + k]
+        # # dl = inputs[0][2 + k]
+        # # dr = inputs[0][3 + k]
+        #
+        # # front = (1 - df) * .3 + wf * 1. + .0001
+        # # left = (1 - dl) * .3 + wl * 1.
+        # # right = (1 - dr) * .3 + wr * 1.
+        #
+        # front = wf * 1. + .0001
+        # left = wl * 1.
+        # right = wr * 1.
+        #
+        # # front = (1 - dl)
+        # # left = (1 - df) + .0001
+        # # right = (1 - dr)
+        #
+        # output[0][0] = front
+        # output[0][1] = left
+        # output[0][2] = right
         # print(output)
 
         return [Action.LEFT, Action.FRONT, Action.RIGHT][output.argmax()]
@@ -367,12 +384,15 @@ class Snake(BaseSnake):
                 points = player['points']
                 # rank = player['rank']
 
-        alive_bonus = 500 if is_alive else 0
+        alive_bonus = 3 if is_alive else 0
         num_food_eaten = (points - self.age / 3) / 3
 
-        # return self.age + points / 10_000 + alive_bonus
+        if is_alive:
+            log.debug('Snake %s won :)', self.name)
+
+        return self.age + points / 10_000 + alive_bonus
         # return points + self.age / 10_000 + alive_bonus
-        return num_food_eaten + points / 10_000 + alive_bonus
+        # return num_food_eaten + points / 10_000 + alive_bonus
 
     @overrides
     def on_game_result(self, player_ranks):

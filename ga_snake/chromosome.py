@@ -25,8 +25,10 @@ class Chromosome(object):
         """
         for i in range(len(self.layers) - 1):
             d0, d1 = self.layers[i], self.layers[i + 1]
-            w = np.random.rand(d0, d1) * 100
-            b = np.random.rand(d1) * 100
+            # w = np.random.rand(d0, d1) * 10. - 5.
+            w = np.random.normal(0, 10, [d0, d1])
+            # b = np.random.rand(d1) * 10. - 5.
+            b = np.random.normal(0, 10, [d1])
             self.layers_wb.append((w, b))
 
     def clone(self, uid=None):
@@ -52,12 +54,14 @@ class Chromosome(object):
                 for col in range(len(w[row])):
                     r = np.random.rand()
                     if r < gene_mutation_prob:
-                        w[row][col] = np.random.rand() * 100
+                        # w[row][col] = np.random.rand() * 10. - 5.
+                        w[row][col] = np.random.normal(0, 10)
                         self.mutations.append('W{}-{}-{}'.format(l, row, col))
             for col in range(len(b)):
                 row = np.random.rand()
                 if row < gene_mutation_prob:
-                    b[col] = np.random.rand() * 100
+                    # b[col] = np.random.rand() * 10. - 5.
+                    b[col] = np.random.normal(0, 10)
                     self.mutations.append('B{}-{}'.format(l, col))
 
     def show(self):

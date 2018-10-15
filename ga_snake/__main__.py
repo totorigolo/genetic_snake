@@ -60,13 +60,13 @@ def parse_args():
     # Genetic algorithm parameters
     parser.add_argument(
         '--pop-size',
-        default=40,
+        default=32,
         type=int,
         dest='population_size',
         help='The number of individuals in the population.')
     parser.add_argument(
         '--layers',
-        default='[8, 7, 3]',
+        default='[8, 3]',
         type=lambda s: list(map(int, s[1:-1].split(','))),
         help='The layers of the Neural Network.')
     parser.add_argument(
@@ -95,28 +95,28 @@ def parse_args():
     parser.add_argument(
         '-Sp',
         '--selection-rank-prob',
-        default=0.35,
+        default=0.2,
         type=int,
         dest='selection_rank_prob',
         help='The probability used in rank selection.')
     parser.add_argument(
         '-Sk',
         '--selection-frac-to-keep',
-        default=.5,
+        default=.3,
         type=float,
         dest='selection_keep_frac',
         help='The fraction of the population to keep during evolution.')
     parser.add_argument(
         '-Mp',
         '--mutation-prob',
-        default=.4,
+        default=.8,
         type=float,
         dest='mutation_prob',
         help='The probability for a chromosome to mutate.')
     parser.add_argument(
         '-Mip',
         '--mutation-inner-prob',
-        default=.01,
+        default=.1,
         type=float,
         dest='mutation_inner_prob',
         help='If the chromosome mutates, this is the probability for a gene '
@@ -124,21 +124,21 @@ def parse_args():
     parser.add_argument(
         '-Cp',
         '--crossover-prob',
-        default=.7,
+        default=.8,
         type=float,
         dest='crossover_prob',
         help='The probability for two parent chromosomes to crossover.')
     parser.add_argument(
         '-Cup',
         '--crossover-uniform-prob',
-        default=.03,
+        default=.25,
         type=float,
         dest='crossover_uniform_prob',
         help='The probability of a swap during an Uniform crossover.')
     parser.add_argument(
         '-Rpg',
         '--num-new-random-per-generation',
-        default=2,
+        default=8,
         type=int,
         dest='num_new_random_per_generation',
         help='The number Rpg of new random chromosomes to introduce at each '
