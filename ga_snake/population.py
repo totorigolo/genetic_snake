@@ -28,11 +28,14 @@ class Population(object):
 
         self.generation = 1
         self.chromosomes = [
-            new_random_chromosome(next(self.id_gen), self.layers)
+            new_random_chromosome(self._new_name(), self.layers)
             for _ in range(self.population_size)
         ]
 
         self.best_chromosome = None
+
+    def _new_name(self):
+        return '{}-{}'.format(self.generation, next(self.id_gen))
 
     def evolve(self, results):
         log.info('Evolving generation %d => %d...',
@@ -46,7 +49,7 @@ class Population(object):
         # Add some totally random chromosomes
         for _ in range(self.num_new_random_per_generation):
             self.chromosomes.append(
-                new_random_chromosome(next(self.id_gen), self.layers))
+                new_random_chromosome(self._new_name(), self.layers))
             self.chromosomes[-1].ancestors.append('R')  # Late random
 
         # Log the best chromosome seen so far
@@ -71,8 +74,8 @@ class Population(object):
 
             # Save the best chromosome ever seen
             if (self.best_chromosome is None
-                    or self.best_chromosome.fitness <= chromosome.fitness):
-                self.best_chromosome = chromosome.clone(chromosome.uid)
+                    or self.best_chromosome.fitness < chromosome.fitness):
+                self.best_chromosome = chromosome.clone()
 
         # Compute each chromosome probability of being selected
         # based on its fitness. (kv[1] is fitness)
@@ -96,7 +99,8 @@ class Population(object):
         # Elitism: Keep the best chromosome
         next_population = []
         if self.elitism:
-            next_population.append(chromosome_dict[ranking[0][1]])
+            best = chromosome_dict[ranking[0][1]]
+            next_population.append(best)
 
         # Roulette-wheel selection
         number_to_keep = int(self.selection_keep_frac * self.population_size
@@ -111,6 +115,7 @@ class Population(object):
                 r -= prob
             if selected is None:  # Rounding error
                 selected = chromosome_dict[probabilities[-1][0]]
+
             next_population.append(selected)
         self.chromosomes = next_population
 
@@ -134,8 +139,8 @@ class Population(object):
                 np.random.random_integers(0, len(self.chromosomes) - 1, 2))
 
             # Clone the parents to create the children
-            alice = father.create_child(next(self.id_gen))
-            bob = mother.create_child(next(self.id_gen))
+            alice = father.create_child(self._new_name())
+            bob = mother.create_child(self._new_name())
 
             # Cross-over (?)
             r = np.random.rand()

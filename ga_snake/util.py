@@ -119,13 +119,15 @@ class Map(object):
         if self.is_coordinate_out_of_bounds(coordinate):
             tile_type = TileType.WALL
         elif snake_at_pos:
-            if position == snake_at_pos['positions'][0]:
-                tile_type = TileType.SNAKE_HEAD
-            elif position == snake_at_pos['positions'][-1] \
-                    and not snake_at_pos_is_me:
-                tile_type = TileType.SNAKE_TAIL
-            else:
+            if snake_at_pos_is_me:
                 tile_type = TileType.SNAKE_BODY
+            else:
+                if position == snake_at_pos['positions'][0]:
+                    tile_type = TileType.SNAKE_HEAD
+                elif position == snake_at_pos['positions'][-1]:
+                    tile_type = TileType.SNAKE_TAIL
+                else:
+                    tile_type = TileType.SNAKE_BODY
         elif position in self.game_map['obstaclePositions']:
             tile_type = TileType.OBSTACLE
         elif position in self.game_map['foodPositions']:

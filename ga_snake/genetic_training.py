@@ -23,16 +23,16 @@ class GeneticTraining(Training):
     def create_batch_from_results(self, results):
         # Show the results
         sum_fitness = 0
-        results = sorted(results, key=lambda t: t[1])
+        results = sorted(results, key=lambda t: t[2])
         print('[Generation #%d] Results:' % self.population.generation)
-        for uid, fitness, watch_link in results:
-            print(' - #%3d fitness=%10g  => %s' % (uid, fitness, watch_link))
+        for uid, name, fitness, watch_link in results:
+            print(' - #%8s fitness=%10g  => %s' % (name, fitness, watch_link))
             sum_fitness += fitness
 
         # Checks if the target fitness is reached
-        best_uid, max_fitness, _ = max(results, key=lambda r: r[1])
+        best_uid, best_name, max_fitness, _ = max(results, key=lambda r: r[2])
         if max_fitness >= self.target_fitness:
-            log.info('Target fitness reached.')
+            log.info('Target fitness reached by %s.', best_name)
             self.show_best()
             return [], sum_fitness
 
@@ -45,7 +45,7 @@ class GeneticTraining(Training):
 
         # Evolve the population and go on with the learning
         self.population.evolve({
-            uid: fitness for uid, fitness, _ in results
+            uid: fitness for uid, name, fitness, _ in results
         })
         return self.population.chromosomes, sum_fitness
 

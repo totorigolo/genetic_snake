@@ -66,7 +66,7 @@ def parse_args():
         help='The number of individuals in the population.')
     parser.add_argument(
         '--layers',
-        default='[8, 3]',
+        default='[15, 20, 3]',
         type=lambda s: list(map(int, s[1:-1].split(','))),
         help='The layers of the Neural Network.')
     parser.add_argument(
@@ -102,21 +102,21 @@ def parse_args():
     parser.add_argument(
         '-Sk',
         '--selection-frac-to-keep',
-        default=.3,
+        default=.4,
         type=float,
         dest='selection_keep_frac',
         help='The fraction of the population to keep during evolution.')
     parser.add_argument(
         '-Mp',
         '--mutation-prob',
-        default=.8,
+        default=1.,
         type=float,
         dest='mutation_prob',
         help='The probability for a chromosome to mutate.')
     parser.add_argument(
         '-Mip',
         '--mutation-inner-prob',
-        default=.1,
+        default=.01,
         type=float,
         dest='mutation_inner_prob',
         help='If the chromosome mutates, this is the probability for a gene '
@@ -124,14 +124,14 @@ def parse_args():
     parser.add_argument(
         '-Cp',
         '--crossover-prob',
-        default=.8,
+        default=1.,
         type=float,
         dest='crossover_prob',
         help='The probability for two parent chromosomes to crossover.')
     parser.add_argument(
         '-Cup',
         '--crossover-uniform-prob',
-        default=.25,
+        default=.15,
         type=float,
         dest='crossover_uniform_prob',
         help='The probability of a swap during an Uniform crossover.')

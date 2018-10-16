@@ -61,7 +61,7 @@ class BaseSnake(object):
     def get_current_direction(self):
         if len(self.moves) > 0:
             return self.moves[-1]
-        return Direction.UP
+        return Direction.RIGHT
 
     def get_next_move(self, game_map: Map):
         self.age += 1
