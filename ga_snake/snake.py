@@ -278,14 +278,14 @@ class Snake(BaseSnake):
                 # rank = player['rank']
 
         alive_bonus = 3 if is_alive else 0
-        # num_food_eaten = ((points + 1) - self.age / 3) / 3
+        num_food_eaten = int(((points + 1) - self.age / 3) / 3)
 
         if is_alive:
             log.debug('Snake %s won :)', self.name)
 
-        return self.age + points / 10000 + alive_bonus
+        # return self.age + points / 10000 + alive_bonus
         # return points + self.age / 10000 + alive_bonus
-        # return num_food_eaten + self.age / 10000 + alive_bonus
+        return num_food_eaten + self.age / 10000 + alive_bonus
 
     @overrides
     def on_game_result(self, player_ranks):
