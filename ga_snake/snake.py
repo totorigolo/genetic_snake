@@ -293,4 +293,4 @@ class Snake(BaseSnake):
 
         fitness = self._compute_fitness(player_ranks)
         self.result = (self.chromosome.uid, self.chromosome.name,
-                       fitness, self.watch_link)
+                       fitness, self.age, self.watch_link)
