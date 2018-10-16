@@ -1,4 +1,4 @@
-from pprint import pprint
+import pprint
 
 from ga_snake import id_generator
 
@@ -29,13 +29,16 @@ class Chromosome(object):
         raise NotImplementedError()
 
     def show(self):
-        pprint([
-            'uid: {}'.format(self.uid),
-            'name: {}'.format(self.name),
-            'Fitness: {}'.format(self.fitness),
-            'Ancestors: {}'.format(self.ancestors),
-            'Mutations: {}'.format(self.mutations),
-        ])
+        print(self.dump())
+
+    def dump(self):
+        return pprint.pformat({
+            'uid': self.uid,
+            'name': self.name,
+            'Fitness': self.fitness,
+            'Ancestors': self.ancestors,
+            'Mutations': self.mutations,
+        })
 
     @staticmethod
     def crossover(chromosome_1, chromosome_2, swap_prob: float):

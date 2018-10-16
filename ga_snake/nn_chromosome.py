@@ -1,4 +1,4 @@
-from pprint import pprint
+import pprint
 from typing import List
 
 import numpy as np
@@ -56,17 +56,16 @@ class NNChromosome(Chromosome):
                     self.mutations.append('B{}-{}'.format(l, col))
 
     @overrides
-    def show(self):
-        pprint([
-            'uid: {}'.format(self.uid),
-            'name: {}'.format(self.name),
-            'Layers: {}'.format(self.layers),
-            'Fitness: {}'.format(self.fitness),
-            'Ancestors: {}'.format(self.ancestors),
-            'Mutations: {}'.format(self.mutations),
-            {i: (w, b) for i, (w, b) in enumerate(self.layers_wb)},
-            'Fitness: {}'.format(self.fitness),  # Repeated for convenience
-        ])
+    def dump(self):
+        return pprint.pformat({
+            'uid': self.uid,
+            'name': self.name,
+            'Layers': self.layers,
+            'Fitness': self.fitness,
+            'Ancestors': self.ancestors,
+            'Mutations': self.mutations,
+            'WB': {i: (w, b) for i, (w, b) in enumerate(self.layers_wb)},
+        })
 
     @staticmethod
     @overrides

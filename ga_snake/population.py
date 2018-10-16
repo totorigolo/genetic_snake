@@ -32,18 +32,37 @@ class Population(object):
                 self._new_name(), self.layers)
             for _ in range(self.population_size)
         ]
+        self.ranking = None
 
         self.best_chromosome = None
 
     def _new_name(self):
         return '{}-{}'.format(self.generation, next(self.id_gen))
 
-    def evolve(self, results):
+    def update(self, results):
+        # Update the chromosomes fitness with the results
+        chromosome_dict = {}
+        for chromosome in self.chromosomes:
+            chromosome_dict[chromosome.uid] = chromosome
+            chromosome.fitness = results[chromosome.uid]
+
+            # Save the best chromosome ever seen
+            if (self.best_chromosome is None
+                    or self.best_chromosome.fitness < chromosome.fitness):
+                self.best_chromosome = chromosome.clone()
+
+        # Compute the ranking or the chromosomes(kv[1] is fitness)
+        self.ranking = list(enumerate(map(
+            lambda kv: kv[0],  # Discard the fitness
+            sorted(results.items(), key=lambda kv: kv[1], reverse=True)
+        )))
+
+    def evolve(self):
         log.info('Evolving generation %d => %d...',
                  self.generation, self.generation + 1)
 
         self.generation += 1
-        self._selection(results)
+        self._selection()
         self._mutate_all()
         self._do_crossovers()
 
@@ -65,35 +84,26 @@ class Population(object):
 
         log.info('Generation %d is ready!', self.generation)
 
-    def _selection(self, results):
+    def _selection(self):
         log.debug('Performing selection...')
 
         # Update the chromosomes fitness with the results
-        chromosome_dict = {}
-        for chromosome in self.chromosomes:
-            chromosome_dict[chromosome.uid] = chromosome
-            chromosome.fitness = results[chromosome.uid]
-
-            # Save the best chromosome ever seen
-            if (self.best_chromosome is None
-                    or self.best_chromosome.fitness < chromosome.fitness):
-                self.best_chromosome = chromosome.clone()
+        chromosome_dict = {
+            chromosome.uid: chromosome
+            for chromosome in self.chromosomes
+        }
 
         # Compute each chromosome probability of being selected
-        # based on its fitness. (kv[1] is fitness)
-        ranking = list(enumerate(map(
-            lambda kv: kv[0],  # Discard the fitness
-            sorted(results.items(), key=lambda kv: kv[1], reverse=True)
-        )))
+        # based on its fitness.
         p_sel = self.selection_rank_prob
         probabilities = list(
             (uid, p_sel * (1 - p_sel) ** rank)
-            for rank, uid in ranking
+            for rank, uid in self.ranking
         )
 
         # Adjust the worst chromosome's probability to sum to 1.
         # (depending on p_sel, the worst can be ranked better than last)
-        probabilities[-1] = (  # tuple don't support assignement
+        probabilities[-1] = (  # tuples don't support assignment
             probabilities[-1][0], (1 - p_sel) ** len(probabilities))
 
         # TODO: Compute rank with fitness AND variance
@@ -101,7 +111,7 @@ class Population(object):
         # Elitism: Keep the best chromosome
         next_population = []
         if self.elitism:
-            best = chromosome_dict[ranking[0][1]]
+            best = chromosome_dict[self.ranking[0][1]]
             next_population.append(best)
 
         # Roulette-wheel selection
@@ -162,3 +172,10 @@ class Population(object):
     @staticmethod
     def compute_probability(fitness, max_fitness):
         return fitness / max_fitness
+
+    def dump_to(self, file):
+        file.write('[')
+        for chromosome in self.chromosomes:
+            file.write(chromosome.dump())
+            file.write(',\n')
+        file.write(']')

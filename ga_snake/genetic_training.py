@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 from overrides import overrides
@@ -43,11 +44,23 @@ class GeneticTraining(Training):
             self.show_best()
             return [], sum_fitness
 
-        # Evolve the population and go on with the learning
-        self.population.evolve({
+        # Update the population with the results
+        self.population.update({
             uid: fitness for uid, name, fitness, _ in results
         })
-        return self.population.chromosomes, sum_fitness
+
+        # Dump the population to a file
+        filename = 'dump-{}-gen-{}.txt'.format(
+            datetime.datetime.now(), self.population.generation)
+        with open(filename, 'w+') as file:
+            self.population.dump_to(file)
+
+        # Evolve the population
+        self.population.evolve()
+
+        # Return the next batch
+        estimated_work = sum_fitness
+        return self.population.chromosomes, estimated_work
 
     def training_interrupted(self):
         pass
