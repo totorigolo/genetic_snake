@@ -21,7 +21,7 @@ TILE_VALUES = {
     TileType.OBSTACLE: -1,
     TileType.SNAKE_HEAD: -5,
     TileType.SNAKE_BODY: -1,
-    TileType.SNAKE_TAIL: -5  # Because then it's protected 3 ticks.
+    TileType.SNAKE_TAIL: -5  # Because then it's then protected during 3 ticks.
 }
 
 
@@ -308,9 +308,9 @@ class Snake(BaseSnake):
         if is_alive:
             log.debug('Snake %s won :)', self.name)
 
-        # return self.age + points / 10_000 + alive_bonus
+        return self.age + points / 10_000 + alive_bonus
         # return points + self.age / 10_000 + alive_bonus
-        return num_food_eaten + self.age / 10_000 + alive_bonus
+        # return num_food_eaten + self.age / 10_000 + alive_bonus
 
     @overrides
     def on_game_result(self, player_ranks):
