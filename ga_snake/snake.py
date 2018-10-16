@@ -83,7 +83,7 @@ def info_from(head: int, name: str, gmap: Map, max_depth: int):
     min_dist_to_food = inf
 
     visited = set()
-    queue = deque([(head, 0)])
+    queue = deque()
     if is_free(head):  # Don't search if the head is inside a wall/snake/...
         queue.append((head, 0))
     while len(queue) > 0:
@@ -194,7 +194,7 @@ class Snake(BaseSnake):
             # By default, TensorFlow pre-allocates all the available
             # memory, so we can't run multiple processes at the same
             # time. Here, we ask not to pre-allocate to much.
-            per_process_gpu_memory_fraction=0.5 / os.cpu_count())
+            per_process_gpu_memory_fraction=0.4 / os.cpu_count())
         self.tf_session = tf.Session(config=tf.ConfigProto(
             use_per_session_threads=True,
             gpu_options=gpu_options
@@ -254,41 +254,16 @@ class Snake(BaseSnake):
         output = self.tf_session.run(
             self.nn_output, feed_dict={self.nn_inputs: inputs})
 
-        # # fblr
-        # # print(self.get_current_direction())
-        # # print(inputs)
-        # k = 0
-        # # # ff = inputs[0][0+k]
-        # # # fb = inputs[0][1+k]
-        # # # fl = inputs[0][2+k]
-        # # # fr = inputs[0][3+k]
-        # # # k += 4
-        # wf = inputs[0][0 + k]
-        # wb = inputs[0][1 + k]
-        # wl = inputs[0][2 + k]
-        # wr = inputs[0][3 + k]
-        # # # k += 4
-        # # # df = inputs[0][0 + k]
-        # # # db = inputs[0][1 + k]
-        # # # dl = inputs[0][2 + k]
-        # # # dr = inputs[0][3 + k]
-        # #
-        # # # front = (1 - df) * .3 + wf * 1. + .0001
-        # # # left = (1 - dl) * .3 + wl * 1.
-        # # # right = (1 - dr) * .3 + wr * 1.
-        # #
-        # front = wf * 1. + .0001
-        # left = wl * 1.
-        # right = wr * 1.
-        # #
-        # # # front = (1 - dl)
-        # # # left = (1 - df) + .0001
-        # # # right = (1 - dr)
-        # #
-        # output[0][0] = left
-        # output[0][1] = front
-        # output[0][2] = right
-        # # print(output)
+        # Forbid suicide
+        left_free = inputs[0][5 * 0] > 0
+        front_free = inputs[0][5 * 1] > 0
+        right_free = inputs[0][5 * 2] > 0
+        if not left_free:
+            output[0][0] = float('inf')
+        if not front_free:
+            output[0][1] = float('inf')
+        if not right_free:
+            output[0][2] = float('inf')
 
         return [Action.LEFT, Action.FRONT, Action.RIGHT][output.argmin()]
 
