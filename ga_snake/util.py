@@ -67,8 +67,8 @@ class TileType(Enum):
     SNAKE_BODY = ("SNAKE_BODY", False)
     SNAKE_TAIL = ("SNAKE_TAIL", False)
 
-    def __init__(self, id, movable):
-        self.id = id
+    def __init__(self, _id, movable):
+        self.id = _id
         self.movable = movable
 
     def __str__(self):
@@ -87,8 +87,8 @@ class Direction(Enum):
     LEFT = ("LEFT", (-1, 0))
     RIGHT = ("RIGHT", (1, 0))
 
-    def __init__(self, id, movement_delta):
-        self.id = id
+    def __init__(self, _id, movement_delta):
+        self.id = _id
         self.movement_delta = movement_delta
 
     def __str__(self):

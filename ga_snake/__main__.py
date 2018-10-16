@@ -79,7 +79,7 @@ def parse_args():
     parser.add_argument(
         '-F',
         '--target-fitness',
-        default=10_000,
+        default=10000,
         type=int,
         dest='target_fitness',
         help='The goal fitness. When attained, the learning stops.')
