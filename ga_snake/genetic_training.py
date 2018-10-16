@@ -9,9 +9,9 @@ log = logging.getLogger("genetic_training")
 
 
 class GeneticTraining(Training):
-    def __init__(self, args):
+    def __init__(self, chromosome_class, args):
         super().__init__(args)
-        self.population = Population(args)
+        self.population = Population(chromosome_class, args)
         self.max_generation = args.max_generation
         self.target_fitness = args.target_fitness
 

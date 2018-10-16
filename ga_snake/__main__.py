@@ -66,7 +66,7 @@ def parse_args():
         help='The number of individuals in the population.')
     parser.add_argument(
         '--layers',
-        default='[15, 20, 3]',
+        default='[15, 3]',
         type=lambda s: list(map(int, s[1:-1].split(','))),
         help='The layers of the Neural Network.')
     parser.add_argument(
@@ -136,12 +136,12 @@ def parse_args():
         dest='crossover_uniform_prob',
         help='The probability of a swap during an Uniform crossover.')
     parser.add_argument(
-        '-Rpg',
+        '-Nrpg',
         '--num-new-random-per-generation',
         default=8,
         type=int,
         dest='num_new_random_per_generation',
-        help='The number Rpg of new random chromosomes to introduce at each '
+        help='The number Nrpg of new random chromosomes to introduce at each '
              'generation. The total population will be pop-size + Rpg.')
 
     return parser.parse_args()
@@ -151,7 +151,8 @@ def main():
     args = parse_args()
     set_up_logging(args)
 
-    training = GeneticTraining(args)
+    from ga_snake.nn_chromosome import NNChromosome
+    training = GeneticTraining(NNChromosome, args)
     training.train()
 
 

@@ -3,14 +3,14 @@ import logging
 import numpy as np
 
 from ga_snake import id_generator
-from ga_snake.chromosome import new_random_chromosome, crossover
 
 log = logging.getLogger("population")
 
 
 class Population(object):
-    def __init__(self, args):
+    def __init__(self, chromosome_class, args):
         self.id_gen = id_generator()
+        self.chromosome_class = chromosome_class
 
         self.layers = args.layers
         self.population_size = args.population_size
@@ -28,7 +28,8 @@ class Population(object):
 
         self.generation = 1
         self.chromosomes = [
-            new_random_chromosome(self._new_name(), self.layers)
+            self.chromosome_class.new_random_chromosome(
+                self._new_name(), self.layers)
             for _ in range(self.population_size)
         ]
 
@@ -49,7 +50,8 @@ class Population(object):
         # Add some totally random chromosomes
         for _ in range(self.num_new_random_per_generation):
             self.chromosomes.append(
-                new_random_chromosome(self._new_name(), self.layers))
+                self.chromosome_class.new_random_chromosome(
+                    self._new_name(), self.layers))
             self.chromosomes[-1].ancestors.append('R')  # Late random
 
         # Log the best chromosome seen so far
@@ -147,7 +149,8 @@ class Population(object):
             if r < self.crossover_prob:
                 alice.ancestors.append('C{}'.format(mother.uid))
                 bob.ancestors.append('C{}'.format(father.uid))
-                crossover(alice, bob, self.crossover_uniform_prob)
+                self.chromosome_class.crossover(
+                    alice, bob, self.crossover_uniform_prob)
 
             # Welcome!
             children.append(alice)

@@ -9,7 +9,7 @@ from overrides import overrides
 
 from ga_snake import util
 from ga_snake.base_snake import BaseSnake, Action
-from ga_snake.chromosome import Chromosome
+from ga_snake.nn_chromosome import NNChromosome
 from ga_snake.util import Direction, Map, TileType
 
 log = logging.getLogger("snake")
@@ -155,7 +155,7 @@ def get_quarter_info(current_direction: Direction,
 
 
 class Snake(BaseSnake):
-    def __init__(self, chromosome: Chromosome):
+    def __init__(self, chromosome: NNChromosome):
         super().__init__()
         self.name = "Darwin_{}".format(chromosome.name)
         self.chromosome = chromosome
