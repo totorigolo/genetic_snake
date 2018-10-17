@@ -44,7 +44,8 @@ class Population(object):
         chromosome_dict = {}
         for chromosome in self.chromosomes:
             chromosome_dict[chromosome.uid] = chromosome
-            chromosome.fitness = results[chromosome.uid]
+            chromosome.fitness = results[chromosome.uid][0]
+            chromosome.info = results[chromosome.uid][1]
 
             # Save the best chromosome ever seen
             if (self.best_chromosome is None
@@ -54,7 +55,7 @@ class Population(object):
         # Compute the ranking or the chromosomes(kv[1] is fitness)
         self.ranking = list(enumerate(map(
             lambda kv: kv[0],  # Discard the fitness
-            sorted(results.items(), key=lambda kv: kv[1], reverse=True)
+            sorted(results.items(), key=lambda kv: kv[1][0], reverse=True)
         )))
 
     def evolve(self):

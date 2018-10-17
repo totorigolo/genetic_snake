@@ -15,6 +15,7 @@ class GeneticTraining(Training):
         self.population = Population(chromosome_class, args)
         self.max_generation = args.max_generation
         self.target_fitness = args.target_fitness
+        self.stats = []
 
     @overrides
     def initial_batch(self):
@@ -26,8 +27,9 @@ class GeneticTraining(Training):
         sum_work = 0
         results = sorted(results, key=lambda t: t[2])
         print('[Generation #%d] Results:' % self.population.generation)
-        for uid, name, fitness, work, watch_link in results:
-            print(' - #%8s fitness=%10g W=%5d => %s' % (
+        for uid, name, fitness, info, watch_link in results:
+            work = info['age']
+            print(' - #%9s fitness=%10g W=%5d => %s' % (
                 name, fitness, work, watch_link))
             sum_work += work
 
@@ -47,7 +49,7 @@ class GeneticTraining(Training):
 
         # Update the population with the results
         self.population.update({
-            uid: fitness for uid, name, fitness, _, _ in results
+            uid: (fitness, info) for uid, name, fitness, info, _ in results
         })
 
         # Dump the population to a file
@@ -55,6 +57,23 @@ class GeneticTraining(Training):
             datetime.datetime.now(), self.population.generation)
         with open(filename, 'w+') as file:
             self.population.dump_to(file)
+
+        # Dump the stats so far for plotting
+        plot_filename = 'plot-{}-gen-{}.txt'.format(
+            datetime.datetime.now(), self.population.generation)
+        with open(plot_filename, 'w+') as file:
+            self.stats.append(list(
+                {
+                    'uid': uid,
+                    'name': name,
+                    'fitness': fitness,
+                    'age': info['age'],
+                    'points': info['points'],
+                    'alive': info['alive']
+                }
+                for uid, name, fitness, info, _ in results
+            ))
+            file.write(str(self.stats))
 
         # Evolve the population
         self.population.evolve()

@@ -90,8 +90,7 @@ def parse_args():
         type=bool,
         dest='selection_elitism',
         help='Whether to always keep the best chromosome in the next '
-             'generation. For the moment, this will increase the population '
-             'size by 1.')
+             'generation. This will increase the population size by 1.')
     parser.add_argument(
         '-Sp',
         '--selection-rank-prob',
@@ -109,14 +108,14 @@ def parse_args():
     parser.add_argument(
         '-Mp',
         '--mutation-prob',
-        default=1.,
+        default=.6,
         type=float,
         dest='mutation_prob',
         help='The probability for a chromosome to mutate.')
     parser.add_argument(
         '-Mip',
         '--mutation-inner-prob',
-        default=.01,
+        default=.02,
         type=float,
         dest='mutation_inner_prob',
         help='If the chromosome mutates, this is the probability for a gene '

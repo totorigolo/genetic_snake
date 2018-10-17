@@ -9,6 +9,7 @@ class Chromosome(object):
     def __init__(self, name: str, ancestors=None):
         self.uid = next(Chromosome.uid_gen)
         self.name = name
+        self.info = None
         self.fitness = None
         self.mutations = []
         self.ancestors = ancestors[::] if ancestors else []
@@ -35,6 +36,7 @@ class Chromosome(object):
         return pprint.pformat({
             'uid': self.uid,
             'name': self.name,
+            'info': self.info,
             'Fitness': self.fitness,
             'Ancestors': self.ancestors,
             'Mutations': self.mutations,

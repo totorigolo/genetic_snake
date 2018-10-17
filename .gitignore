@@ -2,3 +2,4 @@ venv/
 .idea/
 .gtm/
 dump-*.txt
+plot-*.txt

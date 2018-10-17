@@ -16,7 +16,9 @@ class NNChromosome(Chromosome):
 
     @staticmethod
     def _random(shape=None):
-        return np.random.normal(0, 30, shape)
+        if shape is None:
+            shape = (1,)
+        return np.random.rand(*shape) * 2. - 1.
 
     @overrides
     def shuffle(self):
@@ -60,6 +62,7 @@ class NNChromosome(Chromosome):
         return pprint.pformat({
             'uid': self.uid,
             'name': self.name,
+            'info': self.info,
             'Layers': self.layers,
             'Fitness': self.fitness,
             'Ancestors': self.ancestors,
